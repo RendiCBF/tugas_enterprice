@@ -35,22 +35,25 @@ class Auth extends BaseController
     $email = trim($this->request->getVar('email'));
     $password = trim($this->request->getVar('password'));
     
-    $user = $model->where('email', $email)->first();
+    // PERBAIKAN FINAL: Nama tabel disamakan menjadi 'roles'
+    $user = $model->select('users.*, roles.role_name')
+                  ->join('roles', 'roles.role_id = users.role_id') // Pastikan pakai 'roles'
+                  ->where('email', $email)
+                  ->first();
+    
+    if ($user) {
+        if (password_verify($password, $user['password'])) {
+            
+            $sessionData = [
+                'user_id'    => $user['user_id'], // Pastikan kolom di tabel users adalah 'user_id'
+                'username'   => $user['username'],
+                'role'       => $user['role_name'], // Mengambil nama: Admin/Staff
+                'isLoggedIn' => true,
+            ];
 
-if ($user) {
-    // MENGGUNAKAN HASH MODERN: password_verify
-    // Fungsi ini membandingkan teks biasa ($password) dengan hash di database
-    if (password_verify($password, $user['password'])) {
-        
-        $sessionData = [
-            'user_id'    => $user['user_id'],
-            'username'   => $user['username'],
-            'isLoggedIn' => true,
-        ];
-
-        session()->set($sessionData);
-        return redirect()->to('/dashboard')->with('success', 'Selamat Datang! Anda berhasil login.');
-         
+            $session->set($sessionData);
+            return redirect()->to('/dashboard')->with('success', 'Selamat Datang!');
+            
         } else {
             return redirect()->back()->withInput()->with('msg', 'Password salah.');
         }
@@ -58,7 +61,6 @@ if ($user) {
         return redirect()->back()->withInput()->with('msg', 'Email tidak ditemukan.');
     }
 }
-
     /**
      * Menampilkan Halaman Dashboard
      */
@@ -81,4 +83,5 @@ if ($user) {
         return redirect()->to('/auth');
     }
     
+   
 }
