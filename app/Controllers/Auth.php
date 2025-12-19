@@ -49,7 +49,8 @@ if ($user) {
         ];
 
         session()->set($sessionData);
-        return redirect()->to('/dashboard'); 
+        return redirect()->to('/dashboard')->with('success', 'Selamat Datang! Anda berhasil login.');
+         
         } else {
             return redirect()->back()->withInput()->with('msg', 'Password salah.');
         }

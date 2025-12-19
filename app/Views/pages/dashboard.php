@@ -751,6 +751,17 @@
     <script src="<?= base_url('assets/js/demo/chart-area-demo.js') ?>"></script>
     <script src="<?= base_url('assets/js/demo/chart-pie-demo.js') ?>"></script>
 
+    <?php if (session()->getFlashdata('success')) : ?>
+    <div id="notif-berhasil" style="background: green; color: white; padding: 10px; position: fixed; top: 10px; right: 10px;">
+        <?= session()->getFlashdata('success'); ?>
+    </div>
+
+    <script>
+        setTimeout(function() {
+            document.getElementById('notif-berhasil').style.display = 'none';
+        }, 5000); // Hilang dalam 5 detik
+    </script>
+<?php endif; ?>
 </body>
 
 </html>
