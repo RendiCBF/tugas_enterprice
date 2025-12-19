@@ -37,20 +37,19 @@ class Auth extends BaseController
     
     $user = $model->where('email', $email)->first();
 
-    if ($user) {
-       
-        if (md5($password) === $user['password']) {
-            
-            $sessionData = [
-                'user_id'    => $user['user_id'], 
-                'username'   => $user['username'],
-                'email'      => $user['email'],
-                'role_id'    => $user['role_id'],
-                'isLoggedIn' => true,
-            ];
-            
-            $session->set($sessionData);
-            return redirect()->to('/dashboard'); 
+if ($user) {
+    // MENGGUNAKAN HASH MODERN: password_verify
+    // Fungsi ini membandingkan teks biasa ($password) dengan hash di database
+    if (password_verify($password, $user['password'])) {
+        
+        $sessionData = [
+            'user_id'    => $user['user_id'],
+            'username'   => $user['username'],
+            'isLoggedIn' => true,
+        ];
+
+        session()->set($sessionData);
+        return redirect()->to('/dashboard'); 
         } else {
             return redirect()->back()->withInput()->with('msg', 'Password salah.');
         }
