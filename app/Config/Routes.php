@@ -27,7 +27,18 @@ $routes->get('/error403', function() { return view('errors/html/error_403'); });
 $routes->get('/dashboard', 'Auth::dashboard');
 
 // Route khusus Admin (Poin 4: Proteksi Route)
-$routes->get('users', 'Admin::index', ['filter' => 'role:Admin']);
+// 1. Ubah route users agar mengarah ke Controller User
+// $routes->get('user', 'User::index'); 
+
+
+
+// Rute lainnya untuk CRUD (Tetap arahkan ke Controller 'User')
+$routes->get('users', 'User::index');
+$routes->get('users/create', 'User::create');
+$routes->post('users/save', 'User::save');
+$routes->get('users/edit/(:num)', 'User::edit/$1');
+$routes->post('users/update/(:num)', 'User::update/$1');
+$routes->get('users/delete/(:num)', 'User::delete/$1');
 
 // Route untuk Admin & Manager
 $routes->get('/charts', 'Manager::index', ['filter' => 'role[Admin,Manager]']);
@@ -49,3 +60,5 @@ $routes->post('items/save', 'Items::save');    // Memproses penyimpanan data
 $routes->get('items/edit/(:num)', 'Items::edit/$1');
 $routes->post('items/update/(:num)', 'Items::update/$1');
 $routes->get('items/delete/(:num)', 'Items::delete/$1');
+$routes->get('items/delete/(:num)', 'Items::delete/$1');
+
