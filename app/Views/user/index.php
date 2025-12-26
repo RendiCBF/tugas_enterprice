@@ -38,9 +38,8 @@
         </thead>
         <tbody>
             <?php 
-            // Logika nomor agar tetap urut saat pindah halaman paginasi
-            $no = 1 + (10 * ((request()->getVar('page_user') ?? 1) - 1)); 
-            foreach($users as $u) : 
+                $no = 1 + (5 * (($pager->getCurrentPage('user') ?? 1) - 1)); 
+                foreach($users as $u) : 
             ?>
             <tr>
                 <td><?= $no++; ?></td>

@@ -22,7 +22,14 @@
 
                         <form action="<?= base_url('users/save'); ?>" method="post">
                             <?= csrf_field(); ?>
+                            <?php if (session()->getFlashdata('errors')) : ?>
+                                <div class="alert alert-danger" role="alert">
+                                    <?= validation_list_errors() ?>
+                                </div>
+                                 <?php endif; ?>
 
+                                 <form action="<?= base_url('users/save'); ?>" method="post">
+...
                             <div class="mb-3">
                                 <label for="username" class="form-label">Username</label>
                                 <input type="text" class="form-control" id="username" name="username" value="<?= old('username'); ?>" placeholder="Masukkan username" required>
