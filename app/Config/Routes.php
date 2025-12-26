@@ -43,3 +43,9 @@ $routes->get('/error403', function() {
 // Route ini hanya bisa dibuka oleh role 'Manager' dan 'Admin'
 $routes->get('laporan', 'Manager::index', ['filter' => 'role:Manager,Admin']);
 
+$routes->get('items/create', 'Items::create'); // Menampilkan halaman form
+$routes->post('items/save', 'Items::save');    // Memproses penyimpanan data
+// (:num) berfungsi untuk menangkap ID barang yang berupa angka
+$routes->get('items/edit/(:num)', 'Items::edit/$1');
+$routes->post('items/update/(:num)', 'Items::update/$1');
+$routes->get('items/delete/(:num)', 'Items::delete/$1');
