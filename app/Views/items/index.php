@@ -19,31 +19,7 @@
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="#">
-            <i class="fas fa-warehouse me-2 text-primary"></i> Inventaris App
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link btn btn-outline-secondary btn-sm text-white px-3 me-2" href="<?= base_url('/') ?>">
-                        <i class="fas fa-home me-1"></i> Dashboard
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="<?= base_url('items') ?>">Master Barang</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?= base_url('users') ?>">Master User</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+
 <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>

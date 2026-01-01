@@ -100,4 +100,5 @@ class Items extends BaseController
     // Kembali ke daftar stok dengan pesan sukses
     return redirect()->to('/items')->with('success', 'Data berhasil dihapus');
 }
+   
 }

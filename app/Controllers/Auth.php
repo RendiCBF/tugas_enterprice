@@ -11,9 +11,12 @@ class Auth extends BaseController
      * URL: localhost/rendi/public/ atau localhost/rendi/public/auth
      */
     public function index()
-{
-    return view('auth/login'); // Sesuaikan dengan nama file view login Anda
-}
+    {
+        if (session()->get('role') !== 'Admin') {
+            return view('auth/login');
+        }
+        return view('auth/login'); // Sesuaikan dengan nama file view login Anda
+    }
 
     /**
      * Memproses Data Login

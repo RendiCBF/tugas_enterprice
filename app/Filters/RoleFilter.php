@@ -20,7 +20,7 @@ class RoleFilter implements FilterInterface
         if ($arguments) {
             if (!in_array(session()->get('role'), $arguments)) {
                 // Jika tidak punya akses, lempar ke halaman 403
-                return redirect()->to('/error403');
+                return redirect()->to('/');
             }
         }
     }
@@ -29,4 +29,14 @@ class RoleFilter implements FilterInterface
     {
         // Kosongkan saja
     }
+    public $filters = [
+    'role' => [
+        'before' => [
+            'items/*', 
+            'users/*', 
+            'dashboard', 
+            // JANGAN masukkan '/' atau 'auth/*' di sini
+        ]
+    ],
+];
 }
