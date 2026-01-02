@@ -35,6 +35,7 @@ class Filters extends BaseFilters
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
         'role' => 'App\Filters\RoleFilter',
+        'auth' => \App\Filters\AuthFilter::class,
     ];
 
     /**
@@ -107,5 +108,16 @@ class Filters extends BaseFilters
      *
      * @var array<string, array<string, list<string>>>
      */
-    public array $filters = [];
+    public array $filters = [
+        'role' => [
+        'before' => [
+            'users',
+            'users/*',
+            'dashboard',
+            'items/delete/*',
+            'items/create',
+            'items/edit/*',
+        ]
+    ],
+    ];
 }

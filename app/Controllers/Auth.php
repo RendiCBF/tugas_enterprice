@@ -80,11 +80,14 @@ class Auth extends BaseController
     /**
      * Proses Logout
      */
-    public function logout()
-    {
-        session()->destroy();
-        return redirect()->to('/auth');
-    }
+        public function logout()
+        {
+            // 1. Menghapus semua data session yang tersimpan di server
+            session()->destroy(); 
+
+            // 2. Mengarahkan ke halaman login dengan pesan sukses
+            return redirect()->to(base_url('/'))->with('message', 'Anda telah berhasil keluar.');
+        }
     
    
 }

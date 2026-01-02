@@ -141,11 +141,11 @@
             <input type="password" name="password" id="password" placeholder="********" required />
         </span>
         
-        <span class="span"><a href="#">Forgot password?</a></span>
+        <!-- <span class="span"><a href="#">Forgot password?</a></span> -->
         
         <input class="submit" type="submit" value="Sign In" />
         
-        <span class="span">Don't have an account? <a href="#">Sign up</a></span>
+        <!-- <span class="span">Don't have an account? <a href="#">Sign up</a></span> -->
     </form>
 
 </body>
