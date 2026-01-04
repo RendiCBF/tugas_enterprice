@@ -10,8 +10,11 @@ use CodeIgniter\Router\RouteCollection;
 $routes->get('/', 'Auth::index');
 $routes->get('/auth', 'Auth::index');
 $routes->post('/auth/login', 'Auth::login');
-// Gunakan ini saja agar simpel
+
+// ini untuk logout
 $routes->get('logout', 'Auth::logout');
+
+// rute digunakan untuk menampilkan halaman error 403
 $routes->get('/error403', function() {
     return view('errors/html/error_403');
 });
@@ -48,4 +51,14 @@ $routes->group('items', ['filter' => 'role:Admin,Manager,Staff'], function($rout
     $routes->get('edit/(:num)', 'Items::edit/$1');
     $routes->post('update/(:num)', 'Items::update/$1');
     $routes->get('delete/(:num)', 'Items::delete/$1');
+});
+
+// akses untuk Order
+// Tambahkan ini agar URL /order dikenali
+// Hapus semua deklarasi order sebelumnya dan sisakan ini saja
+$routes->group('order', ['filter' => 'auth'], function($routes) {
+    $routes->get('/', 'Order::index');              // List transaksi
+    $routes->get('create', 'Order::create');         // Form input
+    $routes->post('store', 'Order::store');          // Proses simpan
+    $routes->get('detail/(:num)', 'Order::detail/$1'); // Detail nota
 });

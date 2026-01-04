@@ -123,8 +123,8 @@
                 <?= implode('<br>', session()->getFlashdata('errors')) ?>
             </div>
         <?php endif; ?>
-        <?php if(session()->getFlashdata('msg')): ?>
-            <div style="color: #f29900; font-size: 0.8rem;"><?= session()->getFlashdata('msg') ?></div>
+        <?php if(session()->getFlashdata('error')): ?>
+            <div style="color: #f29900; font-size: 0.8rem;"><?= session()->getFlashdata('error') ?></div>
         <?php endif; ?>
     </div>
 

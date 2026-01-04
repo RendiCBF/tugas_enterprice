@@ -55,7 +55,7 @@ class Auth extends BaseController
             ];
 
             $session->set($sessionData);
-            return redirect()->to('/dashboard')->with('success', 'Selamat Datang!');
+            return redirect()->to('/dashboard')->with('success', 'berhasil login!');
             
         } else {
             return redirect()->back()->withInput()->with('msg', 'Password salah.');

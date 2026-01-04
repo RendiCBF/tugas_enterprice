@@ -7,12 +7,8 @@ use CodeIgniter\Model;
 class ItemModel extends Model
 {
     protected $table      = 'items';
-    protected $primaryKey = 'item_id'; // Sesuai gambar Anda
+    protected $primaryKey = 'item_id';
 
-    protected $allowedFields = ['item_name', 'price', 'stock_quantity'];
-
-    // Target Poin 4: Timestamp Otomatis
-    protected $useTimestamps = true;
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
+    // WAJIB: Masukkan stock_quantity agar bisa diupdate oleh Controller Order
+    protected $allowedFields = ['item_name', 'price', 'stock_quantity']; 
 }
