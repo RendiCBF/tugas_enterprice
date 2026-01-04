@@ -53,7 +53,7 @@
                         <span>Manajemen User</span>
                     </a>
                 </li>
-        
+
                 <li class="nav-item">
                     <a class="nav-link" href="<?= base_url('settings') ?>">
                         <i class="fas fa-fw fa-wrench"></i>
@@ -73,9 +73,10 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="<?= base_url('tables') ?>">
-                        <i class="fas fa-fw fa-table"></i>
-                        <span>Data Transaksi</span></a>
+                    <a class="nav-link" href="<?= base_url('order') ?>">
+                        <i class="fas fa-fw fa-shopping-cart"></i>
+                        <span>Data Transaksi</span>
+                    </a>
                 </li>
                 <hr class="sidebar-divider">
             <?php endif; ?>
@@ -86,7 +87,12 @@
                     <i class="fas fa-fw fa-box"></i>
                     <span>Stok Barang</span></a>
             </li>
-
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= base_url('customer') ?>">
+                        <i class="fas fa-fw fa-users"></i>
+                        <span>Master Customer</span>
+                    </a>
+                </li>
             <?php if (session()->get('role') == 'Admin' || session()->get('role') == 'Manager') : ?>
                 <li class="nav-item">
                     <a class="nav-link" href="<?= base_url('laporan') ?>">

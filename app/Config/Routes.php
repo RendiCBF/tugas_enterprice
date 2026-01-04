@@ -62,3 +62,16 @@ $routes->group('order', ['filter' => 'auth'], function($routes) {
     $routes->post('store', 'Order::store');          // Proses simpan
     $routes->get('detail/(:num)', 'Order::detail/$1'); // Detail nota
 });
+
+// Rute untuk Customer (Gunakan filter auth agar aman)
+$routes->group('customer', ['filter' => 'auth'], function($routes) {
+    $routes->get('/', 'Customer::index');
+    $routes->get('create', 'Customer::create');
+    $routes->post('save', 'Customer::save');
+    $routes->get('edit/(:num)', 'Customer::edit/$1');
+    
+    // TAMBAHKAN BARIS INI:
+    $routes->post('update/(:num)', 'Customer::update/$1'); 
+    
+    $routes->get('delete/(:num)', 'Customer::delete/$1');
+});
