@@ -91,7 +91,8 @@ class Order extends BaseController
                 return redirect()->back()->with('error', 'Transaksi gagal disimpan karena kesalahan database.');
             }
 
-            return redirect()->to('/order')->with('success', 'Transaksi berhasil disimpan!');
+           // Redirect langsung ke halaman detail nota menggunakan ID yang baru dibuat
+return redirect()->to('/order/detail/' . $orderId)->with('success', 'Transaksi Berhasil Disimpan!');
 
         } catch (\Exception $e) {
             $db->transRollback(); // Batalkan semua jika ada satu saja yang gagal

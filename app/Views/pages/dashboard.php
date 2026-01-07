@@ -92,6 +92,9 @@
                         <i class="fas fa-fw fa-users"></i>
                         <span>Master Customer</span>
                     </a>
+                      <a class="nav-link" href="<?= base_url('order/create') ?>">
+                        <i class="fas fa-fw fa-shopping-cart"></i> <span>Buat Pesanan</span>
+                    </a>
                 </li>
             <?php if (session()->get('role') == 'Admin' || session()->get('role') == 'Manager') : ?>
                 <li class="nav-item">
