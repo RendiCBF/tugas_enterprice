@@ -2,7 +2,6 @@
 
 <?= $this->section('content') ?>
 <style>
-    /* Styling Tambahan untuk Look yang Lebih Premium */
     body { background-color: #f8f9fa; }
     .page-header { margin-bottom: 2rem; }
     .card { border: none; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
@@ -19,10 +18,6 @@
         border: 1px solid #dfe5ef; 
         border-radius: 10px; 
         padding: 10px;
-    }
-    .input-custom:focus {
-        border-color: #5d87ff;
-        box-shadow: 0 0 0 3px rgba(93, 135, 255, 0.1);
     }
     .item-row td { padding: 15px; border-color: #f1f4f9; vertical-align: middle; }
     .btn-remove { 
@@ -42,7 +37,7 @@
     <div class="page-header d-flex justify-content-between align-items-center">
         <div>
             <h3 class="fw-bold text-dark mb-1">🛒 Transaksi Baru</h3>
-            <p class="text-muted mb-0 small">Pastikan semua data produk dan jumlah sudah sesuai.</p>
+            <p class="text-muted mb-0 small">Pastikan stok mencukupi sebelum menyimpan.</p>
         </div>
         <a href="<?= base_url('order') ?>" class="btn btn-outline-secondary btn-sm px-3 rounded-pill">
             <i class="fas fa-arrow-left me-1"></i> Kembali
@@ -73,8 +68,10 @@
                                         <select name="items[0][product_id]" class="form-select input-custom product-select" required>
                                             <option value="">-- Pilih Produk --</option>
                                             <?php foreach($products as $p): ?>
-                                                <option value="<?= $p['item_id'] ?>" data-price="<?= $p['price'] ?>">
-                                                    <?= $p['item_name'] ?> (Stok: <?= $p['stock_quantity'] ?? '0' ?>) 
+                                                <option value="<?= $p['item_id'] ?>" 
+                                                        data-price="<?= $p['price'] ?>" 
+                                                        data-stok="<?= $p['stock_quantity'] ?>">
+                                                    <?= $p['item_name'] ?> (Stok: <?= $p['stock_quantity'] ?>) 
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
@@ -82,7 +79,7 @@
                                     <td>
                                         <div class="input-group">
                                             <span class="input-group-text bg-light border-0 small">Rp</span>
-                                            <input type="number" name="items[0][price]" class="form-control-plaintext ps-2 fw-semibold price" readonly value="0">
+                                            <input type="number" class="form-control-plaintext ps-2 fw-semibold price" readonly value="0">
                                         </div>
                                     </td>
                                     <td>
@@ -115,32 +112,32 @@
                 <div class="card mb-4">
                     <div class="card-body p-4">
                         <label class="form-label fw-bold text-muted small">PELANGGAN</label>
-                        <div class="input-group mb-2">
+                        <div class="input-group">
                             <span class="input-group-text bg-light border-0"><i class="fas fa-user text-muted"></i></span>
                             <select name="customer_id" class="form-select input-custom" required>
                                 <option value="">-- Pilih Pelanggan --</option>
                                 <?php foreach($customers as $c): ?>
-                                    <option value="<?= $c['id_customer'] ?>"><?= $c['name_customer'] ?></option>
+                                    <option value="<?= $c['id_customer'] ?>" <?= old('customer_id') == $c['id_customer'] ? 'selected' : '' ?>>
+                                        <?= $c['name_customer'] ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
+
+                            <input type="number" name="items[0][qty]" value="<?= old('items.0.qty') ?>" class="form-control qty" required>
                         </div>
                     </div>
                 </div>
 
-                <div class="card summary-card shadow-lg mb-4">
+                <div class="card summary-card shadow-lg">
                     <div class="card-body p-4 text-center">
                         <p class="mb-1 opacity-75">Total Pembayaran</p>
                         <h2 class="fw-bold mb-4">Rp <span id="grandTotal">0</span></h2>
                         <input type="hidden" name="total_grand" id="inputGrandTotal">
                         
-                        <button type="submit" class="btn btn-white w-100 py-3 fw-bold text-primary shadow" style="background: white; border-radius: 12px; border:none;">
+                        <button type="submit" class="btn btn-light w-100 py-3 fw-bold text-primary shadow" style="border-radius: 12px; border:none;">
                             SIMPAN TRANSAKSI <i class="fas fa-check-circle ms-2"></i>
                         </button>
                     </div>
-                </div>
-
-                <div class="alert alert-warning border-0 small" style="border-radius: 12px;">
-                    <i class="fas fa-info-circle me-2"></i> Klik "Simpan" untuk mencatat transaksi dan memotong stok barang.
                 </div>
             </div>
         </div>
@@ -151,40 +148,37 @@
 <?= $this->section('scripts') ?>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // Logika JS Anda tetap di sini (Copy paste dari kode asli Anda)
     let rowIdx = 1;
+
+    // 1. Tambah Baris (Sempurna: Reset nilai & bersihkan data-atribut)
     document.getElementById('addRow').addEventListener('click', function() {
         const tbody = document.getElementById('item-list');
         const firstRow = document.querySelector('.item-row');
         const newRow = firstRow.cloneNode(true);
+        
         newRow.querySelectorAll('select, input').forEach(el => {
             const name = el.getAttribute('name');
             if (name) el.setAttribute('name', name.replace(/\[\d+\]/, `[${rowIdx}]`));
-            el.value = ''; 
+            el.value = (el.classList.contains('qty')) ? '' : 0;
+            if (el.tagName === 'SELECT') el.value = '';
         });
+        
         tbody.appendChild(newRow);
         rowIdx++;
     });
 
+    // 2. Hapus Baris
     document.addEventListener('click', function(e) {
         if (e.target.closest('.remove-row')) {
             const rows = document.querySelectorAll('.item-row');
             if (rows.length > 1) {
                 e.target.closest('.item-row').remove();
-                // Hitung ulang total setelah hapus
                 calculateAll();
             }
         }
     });
 
-    <?php if (session()->getFlashdata('success')) : ?>
-        Swal.fire({ icon: 'success', title: 'Berhasil!', text: '<?= session()->getFlashdata('success') ?>', timer: 2500, showConfirmButton: false });
-    <?php endif; ?>
-
-    <?php if (session()->getFlashdata('error')) : ?>
-        Swal.fire({ icon: 'error', title: 'Oops...', text: '<?= session()->getFlashdata('error') ?>' });
-    <?php endif; ?>
-
+    // 3. Hitung Otomatis & Validasi Stok Real-time
     document.addEventListener('input', function(e) {
         if (e.target.classList.contains('product-select') || e.target.classList.contains('qty')) {
             calculateAll();
@@ -195,16 +189,48 @@
         let total = 0;
         document.querySelectorAll('.item-row').forEach(row => {
             const select = row.querySelector('.product-select');
-            const price = select.options[select.selectedIndex].getAttribute('data-price') || 0;
-            const qty = row.querySelector('.qty').value || 0;
-            const subtotal = price * qty;
+            const selectedOption = select.options[select.selectedIndex];
             
+            const price = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+            const stok = parseInt(selectedOption.getAttribute('data-stok')) || 0;
+            const qtyInput = row.querySelector('.qty');
+            let qty = parseInt(qtyInput.value) || 0;
+
+            // Validasi Stok di Sisi Client
+            if (qty > stok) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Stok Kurang',
+                    text: `Stok tersedia untuk ${selectedOption.text.split('(')[0]} hanya ${stok}`,
+                });
+                qty = stok;
+                qtyInput.value = stok;
+            }
+
+            const subtotal = price * qty;
             row.querySelector('.price').value = price;
             row.querySelector('.subtotal').value = subtotal;
-            total += parseFloat(subtotal);
+            total += subtotal;
         });
+
         document.getElementById('grandTotal').innerText = new Intl.NumberFormat('id-ID').format(total);
         document.getElementById('inputGrandTotal').value = total;
     }
+
+    // 4. Alert Session Flashdata (Satu Tempat)
+    document.addEventListener('DOMContentLoaded', function() {
+        <?php if (session()->getFlashdata('success')) : ?>
+            Swal.fire({ icon: 'success', title: 'Berhasil!', text: '<?= session()->getFlashdata('success') ?>', timer: 2000, showConfirmButton: false });
+        <?php endif; ?>
+
+        <?php if (session()->getFlashdata('error')) : ?>
+            Swal.fire({
+                icon: 'error',
+                title: 'Transaksi Gagal',
+                text: '<?= addslashes(session()->getFlashdata('error')) ?>',
+                confirmButtonColor: '#d33'
+            });
+        <?php endif; ?>
+    });
 </script>
 <?= $this->endSection() ?>

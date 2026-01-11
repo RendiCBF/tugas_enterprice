@@ -26,16 +26,15 @@ class Order extends BaseController
         $db = \Config\Database::connect();
         $orderModel = new OrderModel();
         $orderItemModel = new OrderItemModel();
-        $itemModel = new ItemModel();
-
+        
         // 1. Ambil data dari form
         $items = $this->request->getPost('items');
         $totalAmount = $this->request->getPost('total_grand');
         $customerId = $this->request->getPost('customer_id');
 
-        // Validasi Awal
+        // Validasi Awal: Pastikan data tidak kosong
         if (empty($customerId) || empty($items)) {
-            return redirect()->back()->with('error', 'Lengkapi data pelanggan dan pilih minimal satu produk!');
+            return redirect()->back()->withInput()->with('error', 'Lengkapi data pelanggan dan pilih minimal satu produk!');
         }
 
         // Mulai Transaksi Database
@@ -52,7 +51,7 @@ class Order extends BaseController
             ];
 
             if (!$orderModel->insert($orderData)) {
-                throw new \Exception('Gagal membuat data order utama.');
+                throw new \Exception('Gagal membuat data transaksi utama.');
             }
 
             $orderId = $orderModel->getInsertID();
@@ -61,44 +60,58 @@ class Order extends BaseController
             foreach ($items as $item) {
                 if (empty($item['product_id']) || empty($item['qty'])) continue;
 
-                // 1. Simpan detail item
+                // 1. AMBIL DATA STOK TERBARU (Sesuai gambar DB Anda: item_id)
+                $currentProduct = $db->table('items')
+                    ->where('item_id', $item['product_id'])
+                    ->get()
+                    ->getRowArray();
+
+                // 2. VALIDASI STOK (PENTING: Mencegah stok minus)
+                if (!$currentProduct || (int)$currentProduct['stock_quantity'] < (int)$item['qty']) {
+                    // PERBAIKAN: Gunakan 'item_name' sesuai gambar kolom database Anda
+                    $namaProduk = $currentProduct['item_name'] ?? "Produk ID: " . $item['product_id'];
+                    $sisaStok = $currentProduct['stock_quantity'] ?? 0;
+                    
+                    throw new \Exception("Stok tidak cukup! '$namaProduk' hanya tersisa $sisaStok.");
+                }
+
+                // 3. JIKA LOLOS VALIDASI, SIMPAN DETAIL ORDER
                 $detailData = [
                     'order_id' => $orderId,
                     'item_id'  => $item['product_id'],
                     'quantity' => (int)$item['qty'],
                     'subtotal' => $item['subtotal']
                 ];
+                $orderItemModel->insert($detailData);
 
-                if (!$orderItemModel->insert($detailData)) {
-                    throw new \Exception('Gagal menyimpan detail item: ' . $item['product_id']);
-                }
-
-                // 2. POTONG STOK (Gunakan Query Builder agar lebih aman)
-                // Pastikan nama kolom di database adalah 'stock_quantity'
+                // 4. POTONG STOK (Gunakan kolom stock_quantity sesuai gambar)
                 $db->table('items')
-                   ->where('item_id', $item['product_id'])
-                   ->set('stock_quantity', "stock_quantity - " . (int)$item['qty'], false)
-                   ->update();
-                   
-                if ($db->affectedRows() == 0) {
-                    throw new \Exception('Gagal memperbarui stok untuk produk ID: ' . $item['product_id']);
-                }
+                    ->where('item_id', $item['product_id'])
+                    ->set('stock_quantity', "stock_quantity - " . (int)$item['qty'], false)
+                    ->update();
             }
 
-            $db->transComplete(); // Selesaikan transaksi
+            $db->transComplete();
 
             if ($db->transStatus() === false) {
-                return redirect()->back()->with('error', 'Transaksi gagal disimpan karena kesalahan database.');
+                throw new \Exception('Terjadi kesalahan saat menyimpan ke database.');
             }
 
-           // Redirect langsung ke halaman detail nota menggunakan ID yang baru dibuat
-return redirect()->to('/order/detail/' . $orderId)->with('success', 'Transaksi Berhasil Disimpan!');
+            return redirect()->to('/order/detail/' . $orderId)->with('success', 'Transaksi Berhasil Disimpan!');
 
-        } catch (\Exception $e) {
-            $db->transRollback(); // Batalkan semua jika ada satu saja yang gagal
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }catch (\Exception $e) {
+            $db->transRollback();
+            
+            // PENTING: withInput() agar data di form TIDAK TERESET
+            // with('error', ...) agar pesan muncul di SweetAlert
+            return redirect()->back()
+                            ->withInput()
+                            ->with('error', $e->getMessage());
         }
     }
+
+ 
+
 
     public function index()
     {
