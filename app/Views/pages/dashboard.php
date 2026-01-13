@@ -104,6 +104,14 @@
                     </a>
                 </li>
             <?php endif; ?>
+            <?php if (session()->get('role') == 'Admin') : ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= base_url('logs') ?>">
+                        <i class="fas fa-fw fa-history"></i>
+                        <span>Log Aktivitas</span>
+                    </a>
+                </li>
+            <?php endif; ?>
 
             <hr class="sidebar-divider d-none d-md-block">
 

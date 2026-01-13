@@ -20,7 +20,7 @@ $routes->get('/error403', function() {
 });
 
 // --- 2. RUTE DASHBOARD (Semua yang sudah Login) ---
-$routes->get('/dashboard', 'Auth::dashboard', ['filter' => 'auth']);
+$routes->get('/dashboard', 'Dashboard::index', ['filter' => 'auth']);
 
 // --- 3. RUTE KHUSUS ADMIN (Hanya Admin) ---
 // Menggunakan Group agar lebih aman dan rapi
@@ -39,7 +39,8 @@ $routes->get('/admin-area', 'Admin::index', ['filter' => 'role:Admin']);
 // --- 4. RUTE MANAGER & ADMIN (Laporan/Charts) ---
 $routes->get('/manager-area', 'Manager::index', ['filter' => 'role:Admin,Manager']);
 $routes->get('/charts', 'Manager::index', ['filter' => 'role:Admin,Manager']);
-$routes->get('/laporan', 'Manager::index', ['filter' => 'role:Admin,Manager']);
+$routes->get('/laporan', 'Report::sales', ['filter' => 'role:Admin,Manager']);
+$routes->get('/logs', 'ActivityLog::index', ['filter' => 'role:Admin']);
 
 // --- 5. RUTE OPERASIONAL (Barang/Items) ---
 // Biasanya Staff & Manager boleh lihat, tapi hanya Admin/Staff yang boleh edit
@@ -75,3 +76,9 @@ $routes->group('customer', ['filter' => 'auth'], function($routes) {
     
     $routes->get('delete/(:num)', 'Customer::delete/$1');
 });
+
+
+
+// laporan penjualan
+$routes->get('/report/sales', 'Report::sales', ['filter' => 'role:Admin,Manager']);
+$routes->get('/report/exportExcel', 'Report::exportExcel', ['filter' => 'role:Admin,Manager']);

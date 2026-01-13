@@ -123,7 +123,7 @@
                                 <?php endforeach; ?>
                             </select>
 
-                            <input type="number" name="items[0][qty]" value="<?= old('items.0.qty') ?>" class="form-control qty" required>
+                            <!-- <input type="number" name="items[0][qty]" value="<?= old('items.0.qty') ?>" class="form-control qty" required> -->
                         </div>
                     </div>
                 </div>
