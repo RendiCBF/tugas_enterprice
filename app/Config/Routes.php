@@ -70,11 +70,10 @@ $routes->group('customer', ['filter' => 'auth'], function($routes) {
     $routes->get('create', 'Customer::create');
     $routes->post('save', 'Customer::save');
     $routes->get('edit/(:num)', 'Customer::edit/$1');
-    
-    // TAMBAHKAN BARIS INI:
     $routes->post('update/(:num)', 'Customer::update/$1'); 
     
-    $routes->get('delete/(:num)', 'Customer::delete/$1');
+    // Gunakan (:any) atau (:num) di sini agar konsisten dalam group
+    $routes->get('delete/(:any)', 'Customer::delete/$1');
 });
 
 
@@ -82,3 +81,8 @@ $routes->group('customer', ['filter' => 'auth'], function($routes) {
 // laporan penjualan
 $routes->get('/report/sales', 'Report::sales', ['filter' => 'role:Admin,Manager']);
 $routes->get('/report/exportExcel', 'Report::exportExcel', ['filter' => 'role:Admin,Manager']);
+
+
+// untuk log aktifity
+// Daftarkan rute agar URL /activitylog bisa dikenali sistem
+$routes->get('activitylog', 'ActivityLog::index');

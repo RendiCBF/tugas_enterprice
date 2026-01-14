@@ -1,1 +1,0 @@
-__ci_last_regenerate|i:1765974004;_ci_previous_url|s:44:"http://localhost/rendi/public/index.php/auth";_ci_old_input|a:2:{s:3:"get";a:0:{}s:4:"post";a:3:{s:14:"csrf_test_name";s:32:"685db01d9d3f019852e75eb70281da3b";s:5:"email";s:14:"admin@mail.com";s:8:"password";s:8:"admin123";}}__ci_vars|a:2:{s:13:"_ci_old_input";s:3:"old";s:3:"msg";s:3:"old";}msg|s:15:"Password salah.";

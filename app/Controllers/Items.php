@@ -9,13 +9,14 @@ class Items extends BaseController
     protected $itemModel;
     public function __construct() {
         $this->itemModel = new ItemModel();
+        // Me-load helper secara global di constructor agar selalu siap digunakan
+        helper(['log_helper', 'url']);
     }
 
     public function index()
     {
         $keyword = $this->request->getVar('keyword');
         
-        // Target Poin 3: Pencarian & Paginasi
         if ($keyword) {
             $this->itemModel->like('item_name', $keyword);
         }
@@ -30,75 +31,86 @@ class Items extends BaseController
 
     public function save()
     {
-        // Target Poin 2: Validasi Server-side
         if (!$this->validate([
             'item_name'      => 'required|is_unique[items.item_name]',
             'price'          => 'required|numeric',
             'stock_quantity' => 'required|integer'
         ])) {
-            // Demo 1: Menampilkan pesan error jika input gagal
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        $itemName = $this->request->getPost('item_name');
+
         $this->itemModel->save([
-            'item_name'      => $this->request->getPost('item_name'),
+            'item_name'      => $itemName,
             'price'          => $this->request->getPost('price'),
             'stock_quantity' => $this->request->getPost('stock_quantity'),
         ]);
 
+        // LOG: Mencatat penambahan barang baru
+        \helper_log("INSERT", "Menambahkan barang baru: $itemName");
+
         return redirect()->to('/items')->with('success', 'Data Berhasil Ditambahkan');
     }
+
     public function create()
     {
-        // Pastikan Anda sudah membuat file 'create.php' di folder 'app/Views/items/'
         return view('items/create'); 
     }
+
     public function edit($id = null)
-{
-    // 1. Ambil data dari database berdasarkan ID
-    $data['item'] = $this->itemModel->find($id);
+    {
+        $data['item'] = $this->itemModel->find($id);
 
-    // 2. Jika data tidak ditemukan, tampilkan error 404
-    if (empty($data['item'])) {
-        throw new \CodeIgniter\Exceptions\PageNotFoundException('Barang dengan ID ' . $id . ' tidak ditemukan');
+        if (empty($data['item'])) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Barang dengan ID ' . $id . ' tidak ditemukan');
+        }
+
+        return view('items/edit', $data);
     }
 
-    // 3. Kirim data ke View edit
-    return view('items/edit', $data);
-    }
     public function update($id)
-{
-    // Validasi data (Poin 2 Target Anda)
-    if (!$this->validate([
-        'item_name' => "required|is_unique[items.item_name,item_id,$id]",
-        'price'     => 'required|numeric',
-        'stock_quantity' => 'required|integer'
-    ])) {
-        return redirect()->back()->withInput();
+    {
+        if (!$this->validate([
+            'item_name' => "required|is_unique[items.item_name,item_id,$id]",
+            'price'     => 'required|numeric',
+            'stock_quantity' => 'required|integer'
+        ])) {
+            return redirect()->back()->withInput();
+        }
+
+        $itemName = $this->request->getPost('item_name');
+
+        $this->itemModel->update($id, [
+            'item_name'      => $itemName,
+            'price'          => $this->request->getPost('price'),
+            'stock_quantity' => $this->request->getPost('stock_quantity'),
+        ]);
+
+        // LOG: Mencatat perubahan data barang
+        \helper_log("UPDATE", "Mengubah data barang: $itemName (ID: $id)");
+
+        return redirect()->to('/items')->with('success', 'Data berhasil diubah');
     }
 
-    // Update ke database
-    $this->itemModel->update($id, [
-        'item_name'      => $this->request->getPost('item_name'),
-        'price'          => $this->request->getPost('price'),
-        'stock_quantity' => $this->request->getPost('stock_quantity'),
-    ]);
+    public function delete($id = null)
+    {
+        if ($id === null) {
+            return redirect()->to('/items');
+        }
 
-    return redirect()->to('/items')->with('success', 'Data berhasil diubah');
-}
+        // Ambil data barang sebelum dihapus untuk kebutuhan penulisan log
+        $item = $this->itemModel->find($id);
 
-   public function delete($id = null)
-{
-    // Cek apakah ID ada di URL
-    if ($id === null) {
+        if ($item) {
+            $this->itemModel->where('item_id', $id)->delete();
+
+            // LOG: Mencatat penghapusan barang secara detail (Skema Nilai 6)
+            \helper_log("DELETE", "Menghapus barang: " . $item['item_name'] . " (ID: $id)");
+            
+            return redirect()->to('/items')->with('success', 'Data berhasil dihapus');
+        }
+
         return redirect()->to('/items');
     }
-
-    // Menambahkan klausa WHERE secara eksplisit agar aman
-    $this->itemModel->where('item_id', $id)->delete();
-
-    // Kembali ke daftar stok dengan pesan sukses
-    return redirect()->to('/items')->with('success', 'Data berhasil dihapus');
-}
-   
 }

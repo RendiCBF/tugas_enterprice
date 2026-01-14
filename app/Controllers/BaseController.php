@@ -14,7 +14,7 @@ abstract class BaseController extends Controller
     protected $request;
 
     // 1. Tambahkan helper 'form' dan 'url' agar fungsi redirect dan form lebih stabil
-    protected $helpers = ['form', 'url'];
+    protected $helpers = ['form', 'url', 'log_helper'];
 
     // 2. Deklarasikan properti session
     protected $session;

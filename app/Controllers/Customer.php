@@ -11,8 +11,9 @@ class Customer extends BaseController
     public function __construct()
     {
         $this->customerModel = new CustomerModel();
-        // TAMBAHKAN INI agar fungsi validation_show_error() bisa terbaca di View
-        helper(['form']); 
+        
+        // Memuat helper secara standar di constructor
+        helper(['form', 'url', 'log_helper']); 
     }
 
     public function index()
@@ -32,7 +33,6 @@ class Customer extends BaseController
         return view('customer/index', $data);
     }
 
-    // 1. TAMPILKAN FORM TAMBAH
     public function create()
     {
         $data = [
@@ -42,69 +42,78 @@ class Customer extends BaseController
         return view('customer/create', $data);
     }
 
-    // 2. PROSES SIMPAN DATA (DENGAN VALIDASI)
     public function save()
     {
+        // Validasi input
         if (!$this->validate([
-            'name_customer' => [
-                'rules'  => 'required',
-                'errors' => ['required' => 'Nama harus diisi!']
-            ],
-            'no_hp' => [
-                'rules'  => 'required|numeric',
-                'errors' => [
-                    'required' => 'Nomor HP wajib diisi!',
-                    'numeric'  => 'Gunakan angka untuk nomor HP!'
-                ]
-            ],
-            'alamat' => [
-                'rules'  => 'required',
-                'errors' => ['required' => 'Alamat tidak boleh kosong!']
-            ]
+            'name_customer' => ['rules' => 'required', 'errors' => ['required' => 'Nama harus diisi!']],
+            'no_hp'         => ['rules' => 'required|numeric', 'errors' => ['required' => 'No HP wajib diisi!', 'numeric' => 'Gunakan angka!']],
+            'alamat'        => ['rules' => 'required', 'errors' => ['required' => 'Alamat tidak boleh kosong!']]
         ])) {
-            // SINKRONISASI: Redirect kembali dengan membawa input dan errors
             return redirect()->to('/customer/create')->withInput();
         }
 
+        $name = $this->request->getVar('name_customer');
+
         $this->customerModel->save([
-            'name_customer' => $this->request->getVar('name_customer'),
+            'name_customer' => $name,
             'no_hp'         => $this->request->getVar('no_hp'),
             'alamat'        => $this->request->getVar('alamat'),
         ]);
+
+        // LOG: Mencatat penambahan customer baru
+        // Kita gunakan \ untuk memastikan memanggil fungsi global
+        \helper_log("INSERT", "Menambahkan customer baru bernama: $name");
 
         session()->setFlashdata('success', 'Customer berhasil ditambahkan.');
         return redirect()->to('/customer');
     }
 
-    // 3. TAMPILKAN FORM EDIT
     public function edit($id)
     {
         $data = [
-            'title'    => 'Edit Customer',
-            'customer' => $this->customerModel->find($id),
+            'title'      => 'Edit Customer',
+            'customer'   => $this->customerModel->find($id),
             'validation' => \Config\Services::validation()
         ];
         return view('customer/edit', $data);
     }
 
-    // 4. PROSES UPDATE DATA
     public function update($id)
     {
+        $name = $this->request->getVar('name_customer');
+
         $this->customerModel->update($id, [
-            'name_customer' => $this->request->getVar('name_customer'),
+            'name_customer' => $name,
             'no_hp'         => $this->request->getVar('no_hp'),
             'alamat'        => $this->request->getVar('alamat'),
         ]);
+
+        // LOG: Mencatat perubahan data
+        \helper_log("UPDATE", "Mengubah data customer: $name (ID: $id)");
 
         session()->setFlashdata('success', 'Data berhasil diperbarui.');
         return redirect()->to('/customer');
     }
 
-    // 5. PROSES HAPUS DATA
-    public function delete($id)
+    public function delete($id = null)
     {
-        $this->customerModel->delete($id);
-        session()->setFlashdata('success', 'Data berhasil dihapus.');
+        if ($id == null) return redirect()->to('/customer');
+
+        $customer = $this->customerModel->find($id);
+
+        if ($customer) {
+            $name = $customer['name_customer'];
+
+            // LOG: Catat sebelum data benar-benar dihapus agar variabel $name tersedia
+            \helper_log("DELETE", "Menghapus customer: $name (ID: $id)");
+
+            $this->customerModel->delete($id);
+            session()->setFlashdata('success', 'Data ' . $name . ' berhasil dihapus.');
+        } else {
+            session()->setFlashdata('error', 'Data tidak ditemukan.');
+        }
+
         return redirect()->to('/customer');
     }
 }
